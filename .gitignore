@@ -12,7 +12,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Cc]ode[Cc]overage/
-/packages/
+#/packages/
 *.csproj
 *.sln
 
