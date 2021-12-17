@@ -52,6 +52,7 @@ namespace Mediapipe.Unity
       Camera = 0,
       Image = 1,
       Video = 2,
+      RenderTexture = 3
     }
 
     public ResolutionStruct resolution { get; protected set; }
