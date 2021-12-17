@@ -30,6 +30,15 @@ namespace Mediapipe.Unity.IrisTracking
       set => _graphRunner.SetTimeoutMillisec(value);
     }
 
+    private IrisTrackingValue _irisTrackingValue;
+
+    struct landmark
+    {
+      public float x;
+      public float y;
+      public float z;
+    }
+
 #pragma warning disable IDE1006
     // TODO: make it static
     protected virtual string TAG => GetType().Name;
@@ -45,13 +54,13 @@ namespace Mediapipe.Unity.IrisTracking
     /// <summary>
     ///   Start the main program from the beginning.
     /// </summary>
-    public  void Play()
+    public void Play()
     {
       if (_coroutine != null)
       {
         Stop();
       }
- 
+
       _coroutine = StartCoroutine(Run());
 
       isPaused = false;
@@ -90,7 +99,7 @@ namespace Mediapipe.Unity.IrisTracking
     private IEnumerator Run()
     {
       var graphInitRequest = _graphRunner.WaitForInit();
-      MyImageSourceProvider.SwitchSource(ImageSource.SourceType.RenderTexture);
+      MyImageSourceProvider.SwitchSource(ImageSource.SourceType.Camera);
       var imageSource = MyImageSourceProvider.ImageSource;
 
       yield return imageSource.Play();
@@ -151,10 +160,24 @@ namespace Mediapipe.Unity.IrisTracking
           _screen.ReadSync(textureFrame);
 
           // When running synchronously, wait for the outputs here (blocks the main thread).
-          var value = _graphRunner.FetchNextValue();
-          _faceDetectionsAnnotationController.DrawNow(value.faceDetections);
-          _faceRectAnnotationController.DrawNow(value.faceRect);
-          _faceLandmarksWithIrisAnnotationController.DrawNow(value.faceLandmarksWithIris);
+          _irisTrackingValue = _graphRunner.FetchNextValue();
+
+
+          //Debug.Log("Landmark: " + _irisTrackingValue.faceLandmarksWithIris?.Landmark);
+
+          var landmarks = _irisTrackingValue.faceLandmarksWithIris?.Landmark;
+          try
+          {
+            Debug.Log(landmarks[0].X + " " + landmarks[0].Y + " " + landmarks[0].Z);
+          }
+          catch
+          {
+
+          }
+
+          _faceDetectionsAnnotationController.DrawNow(_irisTrackingValue.faceDetections);
+          _faceRectAnnotationController.DrawNow(_irisTrackingValue.faceRect);
+          _faceLandmarksWithIrisAnnotationController.DrawNow(_irisTrackingValue.faceLandmarksWithIris);
         }
 
         yield return new WaitForEndOfFrame();
